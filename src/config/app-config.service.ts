@@ -53,6 +53,27 @@ export class AppConfigService {
     return this.configService.get<number>('CACHE_TTL_HOURS') || 24;
   }
 
+  // Incremental Sync Configuration
+  get incrementalSyncIntervalHours(): number {
+    return this.configService.get<number>('INCREMENTAL_SYNC_INTERVAL_HOURS') || 4;
+  }
+
+  get fullSyncIntervalHours(): number {
+    return this.configService.get<number>('FULL_SYNC_INTERVAL_HOURS') || 24;
+  }
+
+  get maxIncrementalItems(): number {
+    return this.configService.get<number>('MAX_INCREMENTAL_ITEMS') || 50;
+  }
+
+  get enableIncrementalSync(): boolean {
+    return this.configService.get<boolean>('ENABLE_INCREMENTAL_SYNC') ?? true;
+  }
+
+  get syncBatchSize(): number {
+    return this.configService.get<number>('SYNC_BATCH_SIZE') || 10;
+  }
+
   // Calculated values
   get analysisStartDate(): Date {
     const days = this.monthsToAnalyze * 30.44; // Average days per month
@@ -61,5 +82,13 @@ export class AppConfigService {
 
   get cacheExpiryDate(): Date {
     return new Date(Date.now() - this.cacheTTLHours * 60 * 60 * 1000);
+  }
+
+  get incrementalSyncExpiryDate(): Date {
+    return new Date(Date.now() - this.incrementalSyncIntervalHours * 60 * 60 * 1000);
+  }
+
+  get fullSyncExpiryDate(): Date {
+    return new Date(Date.now() - this.fullSyncIntervalHours * 60 * 60 * 1000);
   }
 }

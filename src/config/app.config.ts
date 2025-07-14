@@ -1,4 +1,4 @@
-import { IsNumber, IsString, IsOptional } from 'class-validator';
+import { IsNumber, IsString, IsOptional, IsBoolean } from 'class-validator';
 
 export class AppConfig {
   // GitHub Configuration
@@ -47,4 +47,25 @@ export class AppConfig {
   @IsOptional()
   @IsNumber()
   CACHE_TTL_HOURS?: number = 24;
+
+  // Incremental Sync Configuration
+  @IsOptional()
+  @IsNumber()
+  INCREMENTAL_SYNC_INTERVAL_HOURS?: number = 4;
+
+  @IsOptional()
+  @IsNumber()
+  FULL_SYNC_INTERVAL_HOURS?: number = 24;
+
+  @IsOptional()
+  @IsNumber()
+  MAX_INCREMENTAL_ITEMS?: number = 50;
+
+  @IsOptional()
+  @IsBoolean()
+  ENABLE_INCREMENTAL_SYNC?: boolean = true;
+
+  @IsOptional()
+  @IsNumber()
+  SYNC_BATCH_SIZE?: number = 10;
 }

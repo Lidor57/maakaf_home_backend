@@ -7,6 +7,7 @@ import { PullRequestsService } from "./pull-requests/pull-requests.service";
 import { IssuesService } from "./issues/issues.service";
 import { CommentsService } from "./comments/comments.service";
 import { UserProfilesService } from "./user-profiles/user-profiles.service";
+import { IncrementalSyncService } from "./incremental-sync.service";
 import { AppConfigService } from "../config/app-config.service";
 
 @Injectable()
@@ -22,6 +23,7 @@ export class GithubActivityService {
     private readonly issuesService: IssuesService,
     private readonly commentsService: CommentsService,
     private readonly userProfilesService: UserProfilesService,
+    private readonly incrementalSyncService: IncrementalSyncService,
     private readonly appConfig: AppConfigService
   ) {}
 
@@ -211,9 +213,24 @@ export class GithubActivityService {
     token: string
   ) {
     const repoFullName = `${repo.owner}/${repo.name}`;
+    
+    // Use incremental sync if enabled
+    if (this.appConfig.enableIncrementalSync) {
+      this.logger.debug(`Using incremental sync for ${username} in ${repoFullName}`);
+      const result = await this.incrementalSyncService.syncUserRepoActivity(username, repo, token);
+      return {
+        commits: result.commits,
+        pullRequests: result.pullRequests,
+        issues: result.issues,
+        prComments: result.prComments,
+        issueComments: result.issueComments,
+      };
+    }
+    
+    // Fallback to original caching logic
     const sixMonthsAgo = this.appConfig.analysisStartDate;
     
-    this.logger.debug(`Checking cached data for ${username} in ${repoFullName}`);
+    this.logger.debug(`Using original caching for ${username} in ${repoFullName}`);
     
     // Check cached data for all activity types
     const [

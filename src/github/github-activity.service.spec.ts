@@ -9,6 +9,7 @@ import { CommentsService } from './comments/comments.service';
 import { UserProfilesService } from './user-profiles/user-profiles.service';
 import { AppConfigService } from '../config/app-config.service';
 import { of } from 'rxjs';
+import { IncrementalSyncService } from './incremental-sync.service';
 
 describe('GithubActivityService', () => {
   let service: GithubActivityService;
@@ -122,6 +123,22 @@ describe('GithubActivityService', () => {
         analysisStartDate: new Date(Date.now() - 6 * 30 * 24 * 60 * 60 * 1000), // 6 months ago
         maxPRsPerRepo: 100,
         cacheExpiryDate: new Date(Date.now() - 24 * 60 * 60 * 1000), // 24 hours ago
+        enableIncrementalSync: false, // Disable incremental sync for tests
+      },
+    };
+
+    const mockIncrementalSyncServiceProvider = {
+      provide: IncrementalSyncService,
+      useValue: {
+        syncUserRepoActivity: jest.fn().mockResolvedValue({
+          commits: 0,
+          pullRequests: 0,
+          issues: 0,
+          prComments: 0,
+          issueComments: 0,
+          isIncremental: true,
+          itemsFetched: 0,
+        }),
       },
     };
 
@@ -133,6 +150,7 @@ describe('GithubActivityService', () => {
         mockHttpServiceProvider,
         mockUserProfilesServiceProvider,
         mockAppConfigServiceProvider,
+        mockIncrementalSyncServiceProvider,
         {
           provide: PullRequestsService,
           useValue: { 
